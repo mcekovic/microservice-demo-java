@@ -3,9 +3,9 @@ package com.igt.demo.microservice;
 import java.util.*;
 import java.util.concurrent.*;
 
+import com.igt.demo.microservice.tools.*;
 import io.micrometer.core.annotation.*;
 import io.micrometer.core.instrument.*;
-import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 
@@ -20,15 +20,11 @@ public class HelloService {
 
 	private final Map<String, Counter> counters = new ConcurrentHashMap<>();
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(HelloService.class);
-
-	@Timed
+	@Timed @Traced
 	public String hello(String name) {
 		var resolvedName = getName(name);
 		incrementCounter(resolvedName);
-		var message = "Hello " + resolvedName + "!";
-		LOGGER.info(message);
-		return message;
+		return "Hello " + resolvedName + "!";
 	}
 
 	private String getName(String name) {

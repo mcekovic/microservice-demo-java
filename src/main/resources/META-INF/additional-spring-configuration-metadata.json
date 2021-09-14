@@ -1,0 +1,7 @@
+{ "properties": [
+  {
+    "name": "hello.method-tracing.enabled",
+    "type": "java.lang.Boolean",
+    "description": "Enables method tracing."
+  }
+]}

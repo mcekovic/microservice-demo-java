@@ -1,4 +1,4 @@
-package com.igt.demo.microservice;
+package com.igt.demo.microservice.tools;
 
 import java.lang.management.*;
 import java.util.*;
