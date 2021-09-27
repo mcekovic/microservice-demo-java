@@ -1,10 +1,10 @@
-FROM adoptopenjdk:16-jre-hotspot as builder
+FROM azul/zulu-openjdk-alpine:17-jre as builder
 WORKDIR application
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} application.jar
 RUN java -Djarmode=layertools -jar application.jar extract
 
-FROM adoptopenjdk:16-jre-hotspot
+FROM azul/zulu-openjdk-alpine:17-jre
 EXPOSE 8080 9999
 VOLUME /application/logs
 WORKDIR application
