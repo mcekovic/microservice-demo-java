@@ -1,5 +1,7 @@
 package com.igt.demo.microservice.tools;
 
+import io.micrometer.core.aop.*;
+import io.micrometer.core.instrument.*;
 import org.aopalliance.aop.*;
 import org.springframework.aop.*;
 import org.springframework.aop.interceptor.*;
@@ -15,7 +17,13 @@ import static org.springframework.beans.factory.config.BeanDefinition.*;
 public class TraceMethodsConfiguration {
 
 	@Bean @Role(ROLE_INFRASTRUCTURE)
-	public Advice traceInterceptor() {
+	public Advisor traceAdvisor() {
+		var tracedPointcut = new ComposablePointcut(new AnnotationMatchingPointcut(Traced.class))
+			.union(new AnnotationMatchingPointcut(null, Traced.class));
+		return new DefaultPointcutAdvisor(tracedPointcut, traceInterceptor());
+	}
+
+	private static Advice traceInterceptor() {
 		var traceInterceptor = new CustomizableTraceInterceptor();
 		traceInterceptor.setUseDynamicLogger(true);
 		traceInterceptor.setEnterMessage("$[methodName]($[arguments])");
@@ -25,9 +33,7 @@ public class TraceMethodsConfiguration {
 	}
 
 	@Bean @Role(ROLE_INFRASTRUCTURE)
-	public Advisor traceAdvisor() {
-		var tracedPointcut = new ComposablePointcut(new AnnotationMatchingPointcut(Traced.class))
-			.union(new AnnotationMatchingPointcut(null, Traced.class));
-		return new DefaultPointcutAdvisor(tracedPointcut, traceInterceptor());
+	public TimedAspect timedAspect(MeterRegistry registry) {
+		return new TimedAspect(registry);
 	}
 }
