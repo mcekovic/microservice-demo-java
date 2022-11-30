@@ -50,4 +50,8 @@ public class BettingService {
       totalStakeCounter.increment(betRisk.totalStake().doubleValue());
       totalReturnCounter.increment(betRisk.totalReturn().doubleValue());
    }
+
+   public int betCount() {
+      return betRisks.size();
+   }
 }
