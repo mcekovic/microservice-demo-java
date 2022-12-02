@@ -11,8 +11,7 @@ import lombok.extern.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 
-@Service
-@Slf4j
+@Service @Slf4j
 public class BettingService {
 
    private final Map<Long, BetRisk> betRisks;
@@ -20,8 +19,8 @@ public class BettingService {
    private final Counter betCounter;
    private final Counter betLegCounter;
    private final Counter unitCounter;
-   private final Counter totalStakeCounter;
-   private final Counter totalReturnCounter;
+   private final DistributionSummary totalStakeSummary;
+   private final DistributionSummary totalReturnSummary;
 
    @Autowired
    public BettingService(MeterRegistry meterRegistry) {
@@ -30,8 +29,10 @@ public class BettingService {
       betCounter = meterRegistry.counter("bet.count");
       betLegCounter = meterRegistry.counter("bet.leg.count");
       unitCounter = meterRegistry.counter("unit.count");
-      totalStakeCounter = meterRegistry.counter("stake.total.amount");
-      totalReturnCounter = meterRegistry.counter("return.total.amount");
+      totalStakeSummary = DistributionSummary.builder("stake.total.amount")
+         .publishPercentileHistogram().register(meterRegistry);
+      totalReturnSummary = DistributionSummary.builder("return.total.amount")
+         .publishPercentileHistogram().register(meterRegistry);
    }
 
    @Timed @Traced
@@ -47,8 +48,8 @@ public class BettingService {
       betCounter.increment();
       betLegCounter.increment(betRisk.bet().legCount());
       unitCounter.increment(betRisk.unitCount());
-      totalStakeCounter.increment(betRisk.totalStake().doubleValue());
-      totalReturnCounter.increment(betRisk.totalReturn().doubleValue());
+      totalStakeSummary.record(betRisk.totalStake().doubleValue());
+      totalReturnSummary.record(betRisk.totalReturn().doubleValue());
    }
 
    public int betCount() {

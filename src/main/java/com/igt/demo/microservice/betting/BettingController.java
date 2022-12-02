@@ -12,7 +12,7 @@ public class BettingController {
 	private BettingService service;
 
 	@PostMapping(path = "/capture", consumes = MediaType.APPLICATION_JSON_VALUE)
-	public long capture(Bet bet) {
+	public long capture(@RequestBody Bet bet) {
 		return service.capture(bet);
 	}
 

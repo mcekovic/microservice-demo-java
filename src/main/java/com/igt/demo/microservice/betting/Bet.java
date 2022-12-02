@@ -2,6 +2,7 @@ package com.igt.demo.microservice.betting;
 
 import java.math.*;
 import java.util.*;
+import java.util.stream.*;
 
 import static com.google.common.base.Preconditions.*;
 import static org.paukov.combinatorics3.Generator.*;
@@ -23,8 +24,12 @@ public record Bet(
       return legs.size();
    }
 
+   public Stream<List<BetLeg>> units() {
+      return unitSize == null ? Stream.of(legs) : combination(legs).simple(unitSize).stream();
+   }
+
    public long unitCount() {
-      return unitSize == null ? 1 : combination(legs).simple(unitSize).stream().count();
+      return units().count();
    }
 
    public BigDecimal totalStake() {
@@ -32,7 +37,7 @@ public record Bet(
    }
 
    public BigDecimal totalReturn() {
-      return combination(legs).simple(unitSize).stream()
+      return units()
          .map(unitLegs -> cumulativePrice(unitLegs).multiply(unitStake))
          .reduce(BigDecimal::add)
          .orElseThrow();
