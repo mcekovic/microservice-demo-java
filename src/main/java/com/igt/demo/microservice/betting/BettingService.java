@@ -1,8 +1,10 @@
 package com.igt.demo.microservice.betting;
 
+import java.math.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
+import java.util.function.*;
 
 import com.igt.demo.microservice.tools.*;
 import io.micrometer.core.annotation.*;
@@ -29,6 +31,7 @@ public class BettingService {
       betCounter = meterRegistry.counter("bet.count");
       betLegCounter = meterRegistry.counter("bet.leg.count");
       unitCounter = meterRegistry.counter("unit.count");
+      meterRegistry.gauge("average.price", List.of(), this, BettingService::averageOdds);
       totalStakeSummary = DistributionSummary.builder("stake.total.amount")
          .publishPercentileHistogram().register(meterRegistry);
       totalReturnSummary = DistributionSummary.builder("return.total.amount")
@@ -46,10 +49,18 @@ public class BettingService {
 
    private void updateMetrics(BetRisk betRisk) {
       betCounter.increment();
-      betLegCounter.increment(betRisk.bet().legCount());
+      betLegCounter.increment(betRisk.legCount());
       unitCounter.increment(betRisk.unitCount());
       totalStakeSummary.record(betRisk.totalStake().doubleValue());
       totalReturnSummary.record(betRisk.totalReturn().doubleValue());
+   }
+
+   private double averageOdds() {
+      return betRisks.values().stream()
+         .reduce(BetRisk::add)
+         .map(BetRisk::betPrice)
+         .orElse(BigDecimal.ONE)
+         .doubleValue();
    }
 
    public int betCount() {
