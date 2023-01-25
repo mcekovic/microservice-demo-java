@@ -4,7 +4,6 @@ import java.math.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
-import java.util.function.*;
 
 import com.igt.demo.microservice.tools.*;
 import io.micrometer.core.annotation.*;
@@ -31,11 +30,13 @@ public class BettingService {
       betCounter = meterRegistry.counter("bet.count");
       betLegCounter = meterRegistry.counter("bet.leg.count");
       unitCounter = meterRegistry.counter("unit.count");
-      meterRegistry.gauge("average.price", List.of(), this, BettingService::averageOdds);
+      meterRegistry.gauge("average.price", List.of(), this, BettingService::averagePrice);
       totalStakeSummary = DistributionSummary.builder("stake.total.amount")
+         .maximumExpectedValue(10000.0)
          .publishPercentileHistogram().register(meterRegistry);
       totalReturnSummary = DistributionSummary.builder("return.total.amount")
-         .publishPercentileHistogram().register(meterRegistry);
+         .publishPercentiles(0.01, 0.05, 0.1, 0.9, 0.95, 0.99)
+         .register(meterRegistry);
    }
 
    @Timed @Traced
@@ -55,7 +56,7 @@ public class BettingService {
       totalReturnSummary.record(betRisk.totalReturn().doubleValue());
    }
 
-   private double averageOdds() {
+   private double averagePrice() {
       return betRisks.values().stream()
          .reduce(BetRisk::add)
          .map(BetRisk::betPrice)
