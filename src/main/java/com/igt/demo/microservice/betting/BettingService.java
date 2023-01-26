@@ -32,6 +32,7 @@ public class BettingService {
       unitCounter = meterRegistry.counter("unit.count");
       meterRegistry.gauge("average.price", List.of(), this, BettingService::averagePrice);
       totalStakeSummary = DistributionSummary.builder("stake.total.amount")
+         .minimumExpectedValue(0.0)
          .maximumExpectedValue(10000.0)
          .publishPercentiles(0.01, 0.05, 0.1, 0.9, 0.95, 0.99)
          .publishPercentileHistogram()
