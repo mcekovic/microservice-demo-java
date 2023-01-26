@@ -33,9 +33,12 @@ public class BettingService {
       meterRegistry.gauge("average.price", List.of(), this, BettingService::averagePrice);
       totalStakeSummary = DistributionSummary.builder("stake.total.amount")
          .maximumExpectedValue(10000.0)
-         .publishPercentileHistogram().register(meterRegistry);
+         .publishPercentiles(0.01, 0.05, 0.1, 0.9, 0.95, 0.99)
+         .publishPercentileHistogram()
+         .register(meterRegistry);
       totalReturnSummary = DistributionSummary.builder("return.total.amount")
          .publishPercentiles(0.01, 0.05, 0.1, 0.9, 0.95, 0.99)
+         .serviceLevelObjectives(10.0, 100.0, 1000.0, 10000.0, 100000.0)
          .register(meterRegistry);
    }
 

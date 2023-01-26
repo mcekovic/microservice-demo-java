@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.0</version>
+		<version>3.0.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -20,6 +20,7 @@
 		<maven.compiler.release>${java.version}</maven.compiler.release>
 		<guava.version>31.1-jre</guava.version>
 		<combinatorics.version>3.3.3</combinatorics.version>
+		<feign.version>12.1</feign.version>
 	</properties>
 
 	<dependencies>
@@ -59,6 +60,16 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-okhttp</artifactId>
+			<version>${feign.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-gson</artifactId>
+			<version>${feign.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.micrometer</groupId>
